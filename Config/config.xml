@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<config xmlns="http://thelia.net/schema/dic/config"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://thelia.net/schema/dic/config http://thelia.net/schema/dic/config/thelia-1.0.xsd">
+
+    <services>
+        <service id="canonicalurl.listener" class="CanonicalUrl\EventListener\CanonicalUrlListener" scope="request">
+            <tag name="kernel.event_subscriber"/>
+            <argument type="service" id="request" />
+        </service>
+    </services>
+
+    <hooks>
+        <hook id="canonicalurl.meta.hook" class="CanonicalUrl\Hook\MetaHook">
+            <tag name="hook.event_listener" event="main.head-bottom" type="front" method="onMainHeadBottom" />
+            <argument type="service" id="event_dispatcher" />
+        </hook>
+    </hooks>
+</config>

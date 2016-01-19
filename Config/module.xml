@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module xmlns="http://thelia.net/schema/dic/module"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://thelia.net/schema/dic/module http://thelia.net/schema/dic/module/module-2_2.xsd">
+    <fullnamespace>CanonicalUrl\CanonicalUrl</fullnamespace>
+    <descriptive locale="en_US">
+        <title>Adds the canonical Url in the metas of your site</title>
+    </descriptive>
+    <descriptive locale="fr_FR">
+        <title>Ajoute l'Url canonique dans les metas de votre site</title>
+    </descriptive>
+    <languages>
+        <language>en_US</language>
+        <language>fr_FR</language>
+    </languages>
+    <version>1.0.0</version>
+    <authors>
+        <author>
+            <name>Gilles Bourgeat</name>
+            <email>gbourgeat@openstudio.fr</email>
+            <website>https://github.com/thelia-modules/CanonicalUrl</website>
+        </author>
+    </authors>
+    <type>classic</type>
+    <thelia>2.1.0</thelia>
+    <stability>prod</stability>
+</module>
