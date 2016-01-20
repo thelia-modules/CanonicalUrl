@@ -13,12 +13,18 @@
         <language>en_US</language>
         <language>fr_FR</language>
     </languages>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <authors>
         <author>
             <name>Gilles Bourgeat</name>
             <email>gbourgeat@openstudio.fr</email>
             <website>https://github.com/thelia-modules/CanonicalUrl</website>
+        </author>
+        <author>
+            <name>Franck Allimant</name>
+            <company>CQFDev</company>
+            <email>franck@cqfdev.fr</email>
+            <website>www.cqfdev.fr</website>
         </author>
     </authors>
     <type>classic</type>
