@@ -4,19 +4,19 @@ This module generates a canonical URL for every page of your shop. Once activate
 
 ## Examples
 
-- If the page URL is not rewritten, the canonical URL contains the "$_GET" parameters. Example for : For url ```http://demo.thelia.net/?view=product&locale=en_US&product_id=18```
+- If the page URL is not rewritten, the canonical URL contains the "$_GET" parameters. Example for : For URL ```http://demo.thelia.net/?view=product&locale=en_US&product_id=18```
     ```html
-    <link rel="canonical" href="/?view=product&locale=en_US&product_id=18" />
+    <link rel="canonical" href="http://demo.thelia.net/?view=product&locale=en_US&product_id=18" />
     ```
 
 - When the page URL contains the script name (index.php), it will be removed from the canonical URL. Example, the canonical URL of ```http://demo.thelia.net/index.php?view=product&locale=en_US&product_id=18``` is :
     ```html
-    <link rel="canonical" href="/?view=product&locale=en_US&product_id=18" />
+    <link rel="canonical" href="http://demo.thelia.net/?view=product&locale=en_US&product_id=18" />
     ```
     
-    For ```http://demo.thelia.net/index.php/en_en-your-path.html?page=44```, the canonical URL is :
+    When a rewritten URL contains parameters, these parameters a removed. For ```http://demo.thelia.net/index.php/en_en-your-path.html?page=44```, the canonical URL is :
     ```html
-    <link rel="canonical" href="/en_en-your-path" />
+    <link rel="canonical" href="http://demo.thelia.net/en_en-your-path" />
     ```
 
 - If the page URL contains a domain which is not the main shop domain, this domain is replaced by the main shop domain. For ```http://demo458.thelia.net/index.php/en_en-your-path.html?page=44``` the canonical URL is :

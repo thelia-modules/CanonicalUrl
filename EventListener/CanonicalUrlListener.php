@@ -48,26 +48,23 @@ class CanonicalUrlListener implements EventSubscriberInterface
      */
     public function generateUrlCanonical(CanonicalUrlEvent $event)
     {
-        $canonicalUrl = null;
+        $parseUrlByCurrentLocale = $this->getParsedUrlByCurrentLocale();
+
+        // Be sure to use the proper domain name
+        $canonicalUrl = $parseUrlByCurrentLocale['scheme'] . '://' . $parseUrlByCurrentLocale['host'];
 
         $uri = $this->request->getUri();
 
         if (!empty($uri) && false !== $parse = parse_url($uri)) {
-            $parseUrlByCurrentLocale = $this->getParseUrlByCurrentLocale();
-
-            // Be sure to use the proper domain name
-            $canonicalUrl = $parseUrlByCurrentLocale['scheme'] . '://' . $parseUrlByCurrentLocale['host'];
-
             // Remove script name from path, preserving a potential subdirectory, e.g. http://somehost.com/mydir/index.php/...
             $canonicalUrl .= preg_replace("!/index(_dev)?\.php!", '', $parse['path']);
         }
 
-        if (empty($canonicalUrl)) {
-            $canonicalUrl = '/?';
+        // If URL rewriting is not enabled, add the query string.
+        // If URL is rewritten, we get rid of useless parameters for a canonical URL, such as page number, limit, lang, and such.
+        if (! ConfigQuery::isRewritingEnable()) {
+            $canonicalUrl .= '?' . $this->request->getQueryString();
         }
-
-        // Add query string, if any
-        $canonicalUrl .= $this->request->getQueryString();
 
         $event->setUrl($canonicalUrl);
     }
@@ -99,26 +96,26 @@ class CanonicalUrlListener implements EventSubscriberInterface
      * query - after the question mark ?
      * fragment - after the hashmark #
      */
-    protected function getParseUrlByCurrentLocale()
+    protected function getParsedUrlByCurrentLocale()
     {
         // for one domain by lang
         if ((int) ConfigQuery::read('one_domain_foreach_lang', 0) === 1) {
-            // $langUrl = $this->session->getLang()->getUrl();
-
-            $langUrl = LangQuery::create()->findOneByLocale($this->session->getLang()->getLocale())->getUrl();
+            // We always query the DB here, as the Lang configuration (then the related URL) may change during the
+            // user session lifetime, and improper URLs could be generated. This is quite odd, okay, but may happen.
+            $langUrl = LangQuery::create()->findPk($this->request->getSession()->getLang()->getId())->getUrl();
 
             if (!empty($langUrl) && false !== $parse = parse_url($langUrl)) {
                 return $parse;
             }
         }
 
-        // return config url site
+        // Configured site URL
         $urlSite =  ConfigQuery::read('url_site');
         if (!empty($urlSite) && false !== $parse = parse_url($urlSite)) {
             return $parse;
         }
 
-        // return current host
+        // return current URL
         return parse_url($this->request->getUri());
     }
 }
