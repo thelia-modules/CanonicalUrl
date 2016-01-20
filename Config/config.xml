@@ -12,7 +12,7 @@
     </services>
 
     <hooks>
-        <hook id="canonicalurl.meta.hook" class="CanonicalUrl\Hook\MetaHook">
+        <hook id="canonicalurl.meta.hook" class="CanonicalUrl\Hook\MetaHook" scope="request">
             <tag name="hook.event_listener" event="main.head-bottom" type="front" method="onMainHeadBottom" />
             <argument type="service" id="event_dispatcher" />
         </hook>
