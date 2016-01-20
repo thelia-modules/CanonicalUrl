@@ -48,35 +48,28 @@ class CanonicalUrlListener implements EventSubscriberInterface
      */
     public function generateUrlCanonical(CanonicalUrlEvent $event)
     {
-        $preUrl = null;
-        $url = null;
+        $canonicalUrl = null;
 
         $uri = $this->request->getUri();
 
-        $parseUrlByCurrentLocale = $this->getParseUrlByCurrentLocale();
-
         if (!empty($uri) && false !== $parse = parse_url($uri)) {
-            // test if current domain equal lang domain
-            if ($parse['host'] !== $parseUrlByCurrentLocale['host']) {
-                $preUrl = $parseUrlByCurrentLocale['scheme'] . '://' . $parseUrlByCurrentLocale['host'];
-            }
+            $parseUrlByCurrentLocale = $this->getParseUrlByCurrentLocale();
 
-            if (strpos($parse['path'], '/index.php') > -1) {
-                $path = explode('/index.php', $parse['path']);
-                $url = $path[1];
-            } elseif (strpos($parse['path'], '/index_dev.php') > -1) {
-                $path = explode('/index_dev.php', $parse['path']);
-                $url = $path[1];
-            } elseif ($parse['path'] !== '/') {
-                $url = $parse['path'];
-            }
+            // Be sure to use the proper domain name
+            $canonicalUrl = $parseUrlByCurrentLocale['scheme'] . '://' . $parseUrlByCurrentLocale['host'];
+
+            // Remove script name from path, preserving a potential subdirectory, e.g. http://somehost.com/mydir/index.php/...
+            $canonicalUrl .= preg_replace("!/index(_dev)?\.php!", '', $parse['path']);
         }
 
-        if (empty($url)) {
-            $url = '/?' . $this->request->getQueryString();
+        if (empty($canonicalUrl)) {
+            $canonicalUrl = '/?';
         }
 
-        $event->setUrl($preUrl . $url);
+        // Add query string, if any
+        $canonicalUrl .= $this->request->getQueryString();
+
+        $event->setUrl($canonicalUrl);
     }
 
     /**
