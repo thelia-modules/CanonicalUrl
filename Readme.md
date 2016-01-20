@@ -4,10 +4,11 @@ This module generates a canonical URL for every page of your shop. Once activate
 
 ## Examples
 
-- If the page URL is not rewritten, the canonical URL contains the "$_GET" parameters. Example for : For URL ```http://demo.thelia.net/?view=product&locale=en_US&product_id=18```
+- If the page URL is not rewritten, the canonical URL will contain all the URL parameters. Example for : For URL ```http://demo.thelia.net/?view=product&locale=en_US&product_id=18```
     ```html
     <link rel="canonical" href="http://demo.thelia.net/?view=product&locale=en_US&product_id=18" />
     ```
+    Obviously, this is far from ideal. Consider activating URL rewriting !
 
 - When the page URL contains the script name (index.php), it will be removed from the canonical URL. Example, the canonical URL of ```http://demo.thelia.net/index.php?view=product&locale=en_US&product_id=18``` is :
     ```html
