@@ -12,16 +12,13 @@
 
 namespace CanonicalUrl\EventListener;
 
-use Propel\Runtime\ActiveQuery\Criteria;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Thelia\Core\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Request;
 use Thelia\Core\HttpFoundation\Session\Session;
 use Thelia\Model\ConfigQuery;
 use Thelia\Model\LangQuery;
 use CanonicalUrl\Event\CanonicalUrlEvent;
 use CanonicalUrl\Event\CanonicalUrlEvents;
-use Thelia\Model\RewritingUrl;
-use Thelia\Model\RewritingUrlQuery;
 
 /**
  * Class CanonicalUrlListener
@@ -51,46 +48,36 @@ class CanonicalUrlListener implements EventSubscriberInterface
      */
     public function generateUrlCanonical(CanonicalUrlEvent $event)
     {
-        $addUrlParameters = true;
+        if ($event->getUrl() !== null) {
+            return;
+        }
 
         $parseUrlByCurrentLocale = $this->getParsedUrlByCurrentLocale();
 
         // Be sure to use the proper domain name
         $canonicalUrl = $parseUrlByCurrentLocale['scheme'] . '://' . $parseUrlByCurrentLocale['host'];
 
-        $uri = $this->request->getUri();
+        // preserving a potential subdirectory, e.g. http://somehost.com/mydir/index.php/...
+        $canonicalUrl .= $this->request->getBaseUrl();
 
-        if (!empty($uri) && false !== $parse = parse_url($uri)) {
-            // Remove script name from path, preserving a potential subdirectory, e.g. http://somehost.com/mydir/index.php/...
-            $filePart = preg_replace("!/index(_dev)?\.php!", '', $parse['path']);
+        // Remove script name from path, e.g. http://somehost.com/index.php/...
+        $canonicalUrl = preg_replace("!/index(_dev)?\.php!", '', $canonicalUrl);
 
-            $canonicalUrl .= $filePart;
+        $path = $this->request->getPathInfo();
 
-            // If URL rewriting is enabled, check if our URL is rewritten.
-            // If it's the case, we will not add parameters to prevent duplicate content.
-            if (ConfigQuery::isRewritingEnable()) {
-                $pathList = [];
+        if (!empty($path) && $path != "/") {
+            $canonicalUrl .= $path;
 
-                $filePart = trim($filePart, '/');
-
-                while (! empty($filePart)) {
-                    $pathList[] = $filePart;
-
-                    $filePart = preg_replace("!^[^/]+/?!", '', $filePart);
-                }
-
-                // Check if we have a rewriten URL
-                $addUrlParameters =  0 === RewritingUrlQuery::create()->filterByUrl($pathList, Criteria::IN)->count();
-            }
-        }
-
-        if ($addUrlParameters) {
+            $canonicalUrl = rtrim($canonicalUrl, '/');
+            /*if (!ConfigQuery::read('allow_slash_ended_uri', false)) {
+                $canonicalUrl = rtrim($canonicalUrl, '/');
+            }*/
+        } else {
             $queryString = $this->request->getQueryString();
 
             if (! empty($queryString)) {
-                $canonicalUrl .= '?' . $queryString;
+                $canonicalUrl .= '/?' . $queryString;
             }
-
         }
 
         $event->setUrl($canonicalUrl);
