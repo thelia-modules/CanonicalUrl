@@ -23,7 +23,7 @@ use CanonicalUrl\Event\CanonicalUrlEvents;
 /**
  * Class CanonicalUrlListener
  * @package CanonicalUrl\EventListener
- * @author Gilles Bourgeat <gbourgeat@openstudio.fr>
+ * @author Gilles Bourgeat <gilles.bourgeat@gmail.com>
  */
 class CanonicalUrlListener implements EventSubscriberInterface
 {
@@ -54,6 +54,10 @@ class CanonicalUrlListener implements EventSubscriberInterface
 
         $parseUrlByCurrentLocale = $this->getParsedUrlByCurrentLocale();
 
+        if (empty($parseUrlByCurrentLocale['host'])) {
+            return;
+        }
+
         // Be sure to use the proper domain name
         $canonicalUrl = $parseUrlByCurrentLocale['scheme'] . '://' . $parseUrlByCurrentLocale['host'];
 
@@ -69,9 +73,6 @@ class CanonicalUrlListener implements EventSubscriberInterface
             $canonicalUrl .= $path;
 
             $canonicalUrl = rtrim($canonicalUrl, '/');
-            /*if (!ConfigQuery::read('allow_slash_ended_uri', false)) {
-                $canonicalUrl = rtrim($canonicalUrl, '/');
-            }*/
         } else {
             $queryString = $this->request->getQueryString();
 

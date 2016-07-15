@@ -1,3 +1,7 @@
+# 1.1.1
+
+- Fix exception when Thelia was not configured
+
 # 1.1.0
 
 - Adds the unit tests in the case of a single domain
