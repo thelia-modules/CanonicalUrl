@@ -21,7 +21,7 @@ use CanonicalUrl\Event\CanonicalUrlEvents;
 /**
  * Class MetaHook
  * @package UrlCanonical\Hook
- * @author Gilles Bourgeat <gbourgeat@openstudio.fr>
+ * @author Gilles Bourgeat <gilles.bourgeat@gmail.com>
  */
 class MetaHook extends BaseHook
 {

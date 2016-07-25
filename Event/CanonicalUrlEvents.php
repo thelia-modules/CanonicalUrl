@@ -15,7 +15,7 @@ namespace CanonicalUrl\Event;
 /**
  * Class CanonicalUrlEvents
  * @package CanonicalUrl\Event
- * @author Gilles Bourgeat <gbourgeat@openstudio.fr>
+ * @author Gilles Bourgeat <gilles.bourgeat@gmail.com>
  */
 class CanonicalUrlEvents
 {
