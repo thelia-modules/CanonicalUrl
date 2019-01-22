@@ -13,7 +13,7 @@
         <language>en_US</language>
         <language>fr_FR</language>
     </languages>
-    <version>1.1.1</version>
+    <version>1.2.0</version>
     <authors>
         <author>
             <name>Gilles Bourgeat</name>
@@ -25,6 +25,11 @@
             <company>CQFDev</company>
             <email>franck@cqfdev.fr</email>
             <website>www.cqfdev.fr</website>
+        </author>
+        <author>
+            <name>Vincent Lopes-Vicente</name>
+            <company>OpenStudio</company>
+            <email>vlopes@openstudio.fr</email>
         </author>
     </authors>
     <type>classic</type>

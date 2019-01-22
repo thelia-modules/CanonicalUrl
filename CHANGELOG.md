@@ -1,3 +1,7 @@
+# 1.2.0
+
+- Add canonical override in seo form
+
 # 1.1.1
 
 - Fix exception when Thelia was not configured
