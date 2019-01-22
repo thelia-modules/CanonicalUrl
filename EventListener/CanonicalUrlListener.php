@@ -12,13 +12,16 @@
 
 namespace CanonicalUrl\EventListener;
 
+use CanonicalUrl\CanonicalUrl;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Thelia\Core\HttpFoundation\Session\Session;
+use Thelia\Log\Tlog;
 use Thelia\Model\ConfigQuery;
 use Thelia\Model\LangQuery;
 use CanonicalUrl\Event\CanonicalUrlEvent;
 use CanonicalUrl\Event\CanonicalUrlEvents;
+use Thelia\Model\MetaDataQuery;
 
 /**
  * Class CanonicalUrlListener
@@ -51,6 +54,15 @@ class CanonicalUrlListener implements EventSubscriberInterface
         if ($event->getUrl() !== null) {
             return;
         }
+        
+        if (null !== $canonicalOverride = $this->getCanonicalOverride()) {
+            try {
+                $event->setUrl($canonicalOverride);
+                return;
+            } catch (\InvalidArgumentException $e) {
+                Tlog::getInstance()->addWarning($e->getMessage());
+            }
+        }
 
         $parseUrlByCurrentLocale = $this->getParsedUrlByCurrentLocale();
 
@@ -81,7 +93,11 @@ class CanonicalUrlListener implements EventSubscriberInterface
             }
         }
 
-        $event->setUrl($canonicalUrl);
+        try {
+            $event->setUrl($canonicalUrl);
+        } catch (\InvalidArgumentException $e) {
+            Tlog::getInstance()->addWarning($e->getMessage());
+        }
     }
 
     /**
@@ -132,5 +148,59 @@ class CanonicalUrlListener implements EventSubscriberInterface
 
         // return current URL
         return parse_url($this->request->getUri());
+    }
+
+    /**
+     * @return string|null
+     */
+    protected function getCanonicalOverride()
+    {
+        $routeParameters = $this->getRouteParameters();
+
+        if (null === $routeParameters) {
+            return null;
+        }
+
+        $metaCanonical = MetaDataQuery::create()
+            ->filterByMetaKey(CanonicalUrl::SEO_CANONICAL_META_KEY)
+            ->filterByElementKey($routeParameters['view'])
+            ->filterByElementId($routeParameters['id'])
+            ->findOne();
+
+        if (null === $metaCanonical) {
+            return null;
+        }
+
+        $canonicalValues = json_decode($metaCanonical->getValue(), true);
+
+        $lang = $this->request->getSession()->getLang();
+
+        if (!isset($canonicalValues[$lang->getLocale()])) {
+            return null;
+        }
+
+        return $canonicalValues[$lang->getLocale()];
+    }
+
+    /**
+     * @return array|null
+     */
+    protected function getRouteParameters()
+    {
+        $view = $this->request->get('view');
+        if (null === $view) {
+            $view = $this->request->get('_view');
+        }
+        if (null === $view) {
+            return null;
+        }
+
+        $id = $this->request->get($view.'_id');
+
+        if (null === $id) {
+            return null;
+        }
+
+        return compact('view', 'id');
     }
 }

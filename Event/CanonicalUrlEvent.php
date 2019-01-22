@@ -12,7 +12,6 @@
 
 namespace CanonicalUrl\Event;
 
-use Doctrine\Instantiator\Exception\InvalidArgumentException;
 use Symfony\Component\EventDispatcher\Event;
 
 /**
@@ -40,7 +39,7 @@ class CanonicalUrlEvent extends Event
     public function setUrl($url)
     {
         if ($url !== null && $url[0] !== '/' && filter_var($url, FILTER_VALIDATE_URL) === false) {
-            throw new InvalidArgumentException('The value "' . (string) $url . '" is not a valid Url or Uri.');
+            throw new \InvalidArgumentException('The value "' . (string) $url . '" is not a valid Url or Uri.');
         }
 
         $this->url = $url;

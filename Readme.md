@@ -37,9 +37,11 @@ This module generates a canonical URL for every page of your shop. Once activate
 Add it in your main thelia composer.json file
 
 ```
-composer require thelia/canonical-url-module:~1.1.0
+composer require thelia/canonical-url-module:~1.2.0
 ```
 
 ## Usage
 
 You just have to activate the module and check the meta tags of your shop.
+
+The canonical will be generated automatically but you can define a canonical url in seo form for each item if you want override the generated url.

@@ -18,4 +18,6 @@ class CanonicalUrl extends BaseModule
 {
     /** @var string */
     const DOMAIN_NAME = 'canonicalurl';
+
+    const SEO_CANONICAL_META_KEY = 'seo_canonical_meta';
 }
