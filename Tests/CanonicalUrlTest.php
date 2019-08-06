@@ -171,6 +171,18 @@ class CanonicalUrlTest extends \PHPUnit_Framework_TestCase
             '/web/index_dev.php'
         ));
     }
+    public function testWithNotRewrittenUrl()
+    {
+        $this->performList('http://myhost.com/web/?view=category&lang=fr_FR&category_id=48', [
+            'http://myhost.com/web/index.php?view=category&lang=fr_FR&category_id=48',
+            'http://myhost.com/web/?lang=fr_FR&view=category&category_id=48',
+            'http://myhost.com/web/index.php?&category_id=48&lang=fr_FR&view=category',
+            'http://myhost.com/web/index.php/?category_id=48&view=category&lang=fr_FR'
+        ], $this->fakeServer(
+            '/var/www/web/index.php',
+            '/web/index.php'
+        ));
+    }
 
     public function testOverrideCanonicalEvent()
     {
