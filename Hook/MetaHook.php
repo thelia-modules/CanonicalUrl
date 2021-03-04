@@ -44,8 +44,8 @@ class MetaHook extends BaseHook
         $event = new CanonicalUrlEvent();
 
         $this->eventDispatcher->dispatch(
+            $event,
             CanonicalUrlEvents::GENERATE_CANONICAL,
-            $event
         );
 
         if ($event->getUrl()) {

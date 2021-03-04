@@ -15,6 +15,7 @@ namespace CanonicalUrl\EventListener;
 use CanonicalUrl\CanonicalUrl;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Thelia\Core\HttpFoundation\Session\Session;
 use Thelia\Log\Tlog;
 use Thelia\Model\ConfigQuery;
@@ -39,9 +40,9 @@ class CanonicalUrlListener implements EventSubscriberInterface
     /**
      * @param Request $request
      */
-    public function __construct(Request $request)
+    public function __construct(RequestStack $requestStack)
     {
-        $this->request = $request;
+        $this->request = $requestStack->getCurrentRequest();
 
         $this->session = $this->request->getSession();
     }
@@ -54,7 +55,7 @@ class CanonicalUrlListener implements EventSubscriberInterface
         if ($event->getUrl() !== null) {
             return;
         }
-        
+
         if (null !== $canonicalOverride = $this->getCanonicalOverride()) {
             try {
                 $event->setUrl($canonicalOverride);
