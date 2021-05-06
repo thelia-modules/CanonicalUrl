@@ -11,6 +11,8 @@ use Thelia\Core\Event\TheliaEvents;
 use Thelia\Core\Event\TheliaFormEvent;
 use Thelia\Core\Event\UpdateSeoEvent;
 use Thelia\Model\MetaDataQuery;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+
 
 class SeoFormListener extends BaseAction implements EventSubscriberInterface
 {
@@ -97,7 +99,7 @@ class SeoFormListener extends BaseAction implements EventSubscriberInterface
         $event->getForm()->getFormBuilder()
             ->add(
                 'canonical',
-                'text'
+                 TextType::class
             );
     }
 }
