@@ -12,6 +12,7 @@
 
 namespace CanonicalUrl\EventListener;
 
+use BetterSeo\Model\BetterSeoQuery;
 use CanonicalUrl\CanonicalUrl;
 use CanonicalUrl\Event\CanonicalUrlEvent;
 use CanonicalUrl\Event\CanonicalUrlEvents;
@@ -21,6 +22,7 @@ use Thelia\Core\HttpFoundation\Request;
 use Thelia\Core\HttpFoundation\Session\Session;
 use Thelia\Log\Tlog;
 use Thelia\Model\ConfigQuery;
+use Thelia\Model\Lang;
 use Thelia\Model\LangQuery;
 use Thelia\Model\MetaDataQuery;
 
@@ -161,6 +163,7 @@ class CanonicalUrlListener implements EventSubscriberInterface
     {
         /** @var Request $request */
         $request = $this->requestStack->getCurrentRequest();
+        $lang = $request->getSession()->getLang();
 
         $routeParameters = $this->getRouteParameters();
 
@@ -168,25 +171,61 @@ class CanonicalUrlListener implements EventSubscriberInterface
             return null;
         }
 
+        $url = null;
+
         $metaCanonical = MetaDataQuery::create()
             ->filterByMetaKey(CanonicalUrl::SEO_CANONICAL_META_KEY)
             ->filterByElementKey($routeParameters['view'])
             ->filterByElementId($routeParameters['id'])
             ->findOne();
 
-        if (null === $metaCanonical) {
+        if (null !== $metaCanonical) {
+            $canonicalValues = json_decode($metaCanonical->getValue(), true);
+
+            $url = $canonicalValues[$lang->getLocale()]?? null;
+        }
+
+        // Try to get old field of BetterSeoModule
+        if (null === $url && class_exists("BetterSeo\BetterSeo")) {
+            try {
+                $betterSeoData = BetterSeoQuery::create()
+                    ->filterByObjectType($routeParameters['view'])
+                    ->filterByObjectId($routeParameters['id'])
+                    ->findOne();
+
+                $url = $betterSeoData->setLocale($lang->getLocale())
+                    ->getCanonicalField();
+            } catch (\Throwable $exception) {
+                //Catch if field doesn't exist but do nothing
+            }
+        }
+
+        if (null === $url) {
             return null;
         }
 
-        $canonicalValues = json_decode($metaCanonical->getValue(), true);
-
-        $lang = $request->getSession()->getLang();
-
-        if (!isset($canonicalValues[$lang->getLocale()])) {
-            return null;
+        if (false === filter_var($url, \FILTER_VALIDATE_URL)) {
+            return rtrim($this->getSiteBaseUrlForLocale($lang), "/")."/".$url;
         }
 
-        return $canonicalValues[$lang->getLocale()];
+        return $url;
+    }
+
+    protected function getSiteBaseUrlForLocale(Lang $lang = null)
+    {
+        if (null === $lang) {
+            $lang = $this->requestStack->getCurrentRequest()->getSession()->getLang();
+        }
+        if ((int) ConfigQuery::read('one_domain_foreach_lang', 0) === 1) {
+            // We always query the DB here, as the Lang configuration (then the related URL) may change during the
+            // user session lifetime, and improper URLs could be generated. This is quite odd, okay, but may happen.
+            $langUrl = LangQuery::create()->findPk($lang->getId())->getUrl();
+            return $langUrl;
+        }
+
+        // Configured site URL
+        $urlSite = ConfigQuery::read('url_site');
+        return $urlSite;
     }
 
     /**

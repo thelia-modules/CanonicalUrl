@@ -74,11 +74,7 @@ class SeoFormListener extends BaseAction implements EventSubscriberInterface
 
     protected function saveSeoFields(UpdateSeoEvent $event, $eventName, EventDispatcherInterface $dispatcher, $elementKey): void
     {
-        if (null === $request = $this->requestStack->getCurrentRequest()) {
-            return;
-        }
-
-        $form = $request->request->get('thelia_seo');
+        $form = $this->requestStack->getCurrentRequest()->request->get('thelia_seo');
 
         if (null === $form || !\array_key_exists('id', $form) || !\array_key_exists('canonical', $form)) {
             return;
