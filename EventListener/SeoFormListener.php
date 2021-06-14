@@ -1,75 +1,86 @@
 <?php
 
+/*
+ * This file is part of the Thelia package.
+ * http://www.thelia.net
+ *
+ * (c) OpenStudio <info@thelia.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace CanonicalUrl\EventListener;
 
 use CanonicalUrl\CanonicalUrl;
-use Thelia\Core\HttpFoundation\Request;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Thelia\Action\BaseAction;
 use Thelia\Core\Event\TheliaEvents;
 use Thelia\Core\Event\TheliaFormEvent;
 use Thelia\Core\Event\UpdateSeoEvent;
+use Thelia\Core\HttpFoundation\Request;
 use Thelia\Model\MetaDataQuery;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-
 
 class SeoFormListener extends BaseAction implements EventSubscriberInterface
 {
-    /** @var \Thelia\Core\HttpFoundation\Request */
-    protected $request;
+    /** @var RequestStack */
+    protected $requestStack;
 
-    /**
-     * @param Request $request
-     */
-    public function __construct(Request $request)
+    public function __construct(RequestStack $requestStack)
     {
-        $this->request = $request;
+        $this->requestStack = $requestStack;
     }
 
     public static function getSubscribedEvents()
     {
-        return array(
-            TheliaEvents::FORM_AFTER_BUILD.'.thelia_seo' => array('addCanonicalField', 128),
-            TheliaEvents::CATEGORY_UPDATE_SEO => array('saveCategorySeoFields', 128),
-            TheliaEvents::BRAND_UPDATE_SEO => array('saveBrandSeoFields', 128),
-            TheliaEvents::CONTENT_UPDATE_SEO => array('saveContentSeoFields', 128),
-            TheliaEvents::FOLDER_UPDATE_SEO => array('saveFolderSeoFields', 128),
-            TheliaEvents::PRODUCT_UPDATE_SEO => array('saveProductSeoFields', 128)
-        );
+        return [
+            TheliaEvents::FORM_AFTER_BUILD.'.thelia_seo' => ['addCanonicalField', 128],
+            TheliaEvents::CATEGORY_UPDATE_SEO => ['saveCategorySeoFields', 128],
+            TheliaEvents::BRAND_UPDATE_SEO => ['saveBrandSeoFields', 128],
+            TheliaEvents::CONTENT_UPDATE_SEO => ['saveContentSeoFields', 128],
+            TheliaEvents::FOLDER_UPDATE_SEO => ['saveFolderSeoFields', 128],
+            TheliaEvents::PRODUCT_UPDATE_SEO => ['saveProductSeoFields', 128],
+        ];
     }
 
-    public function saveCategorySeoFields(UpdateSeoEvent $event, $eventName, EventDispatcher $dispatcher)
+    public function saveCategorySeoFields(UpdateSeoEvent $event, $eventName, EventDispatcherInterface $dispatcher): void
     {
         $this->saveSeoFields($event, $eventName, $dispatcher, 'category');
     }
 
-    public function saveBrandSeoFields(UpdateSeoEvent $event, $eventName, EventDispatcher $dispatcher)
+    public function saveBrandSeoFields(UpdateSeoEvent $event, $eventName, EventDispatcherInterface $dispatcher): void
     {
         $this->saveSeoFields($event, $eventName, $dispatcher, 'brand');
     }
 
-    public function saveContentSeoFields(UpdateSeoEvent $event, $eventName, EventDispatcher $dispatcher)
+    public function saveContentSeoFields(UpdateSeoEvent $event, $eventName, EventDispatcherInterface $dispatcher): void
     {
         $this->saveSeoFields($event, $eventName, $dispatcher, 'content');
     }
 
-    public function saveFolderSeoFields(UpdateSeoEvent $event, $eventName, EventDispatcher $dispatcher)
+    public function saveFolderSeoFields(UpdateSeoEvent $event, $eventName, EventDispatcherInterface $dispatcher): void
     {
         $this->saveSeoFields($event, $eventName, $dispatcher, 'folder');
     }
 
-    public function saveProductSeoFields(UpdateSeoEvent $event, $eventName, EventDispatcher $dispatcher)
+    public function saveProductSeoFields(UpdateSeoEvent $event, $eventName, EventDispatcherInterface $dispatcher): void
     {
         $this->saveSeoFields($event, $eventName, $dispatcher, 'product');
     }
 
-    protected function saveSeoFields(UpdateSeoEvent $event, $eventName, EventDispatcher $dispatcher, $elementKey)
+    protected function saveSeoFields(UpdateSeoEvent $event, $eventName, EventDispatcherInterface $dispatcher, $elementKey): void
     {
-        $form = $this->request->request->get('thelia_seo');
+        if (null !== $this->requestStack->getCurrentRequest()) {
+            return;
+        }
 
+        $form = $this->requestStack->getCurrentRequest()->request->get('thelia_seo');
 
-        if (null === $form || !array_key_exists('id', $form) || !array_key_exists('canonical', $form)) {
+        if (null === $form || !\array_key_exists('id', $form) || !\array_key_exists('canonical', $form)) {
             return;
         }
 
@@ -94,7 +105,7 @@ class SeoFormListener extends BaseAction implements EventSubscriberInterface
             ->save();
     }
 
-    public function addCanonicalField(TheliaFormEvent $event)
+    public function addCanonicalField(TheliaFormEvent $event): void
     {
         $event->getForm()->getFormBuilder()
             ->add(

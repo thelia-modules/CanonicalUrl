@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * This file is part of the Thelia package.
+ * http://www.thelia.net
+ *
+ * (c) OpenStudio <info@thelia.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace CanonicalUrl\Hook;
 
 use CanonicalUrl\CanonicalUrl;
@@ -9,7 +19,7 @@ use Thelia\Model\MetaDataQuery;
 
 class SeoUpdateFormHook extends BaseHook
 {
-    public function addInputs(HookRenderEvent $event)
+    public function addInputs(HookRenderEvent $event): void
     {
         $id = $event->getArgument('id');
         $type = $event->getArgument('type');
@@ -33,7 +43,7 @@ class SeoUpdateFormHook extends BaseHook
             'hook-seo-update-form.html',
             [
                 'form' => $event->getArgument('form'),
-                'canonical' => $canonical
+                'canonical' => $canonical,
             ]
         ));
     }
