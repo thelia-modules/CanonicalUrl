@@ -44,12 +44,10 @@ class CanonicalUrlListener implements EventSubscriberInterface
 
     public function generateUrlCanonical(CanonicalUrlEvent $event): void
     {
-        if (null !== $this->requestStack->getCurrentRequest()) {
+        /** @var Request $request */
+        if (null === $request = $this->requestStack->getCurrentRequest()) {
             return;
         }
-
-        /** @var Request $request */
-        $request = $this->requestStack->getCurrentRequest();
 
         if ($event->getUrl() !== null) {
             return;
