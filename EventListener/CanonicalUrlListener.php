@@ -87,13 +87,7 @@ class CanonicalUrlListener implements EventSubscriberInterface
 
             $canonicalUrl = rtrim($canonicalUrl, '/');
         } else {
-            if (null === $queryString = $request->server->get('QUERY_STRING')) {
-                $queryString = $request->getQueryString();
-            }
-
-            if (!empty($queryString)) {
-                $canonicalUrl .= '/?'.$queryString;
-            }
+            $canonicalUrl .= '/?'. (array_key_exists("query", $parseUrlByCurrentLocale)) ? $parseUrlByCurrentLocale['query'] : "";
         }
 
         try {
