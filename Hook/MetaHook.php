@@ -43,7 +43,7 @@ class MetaHook extends BaseHook
         );
 
         if ($event->getUrl()) {
-            $hookRender->add('<link rel="canonical" href="'.$event->getUrl().'" />');
+            $hookRender->add('<link rel="canonical" href="'.$event->getUrl().'">');
         }
     }
 }
