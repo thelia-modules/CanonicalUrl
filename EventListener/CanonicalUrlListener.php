@@ -176,7 +176,7 @@ class CanonicalUrlListener implements EventSubscriberInterface
         if (null !== $metaCanonical) {
             $canonicalValues = json_decode($metaCanonical->getValue(), true);
 
-            $url = $canonicalValues[$lang->getLocale()] !== "" ? $canonicalValues[$lang->getLocale()] :null;
+            $url = ! empty($canonicalValues[$lang->getLocale()]) ? $canonicalValues[$lang->getLocale()] :null;
         }
 
         // Try to get old field of BetterSeoModule
