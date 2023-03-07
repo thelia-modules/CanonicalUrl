@@ -51,6 +51,11 @@ class CanonicalUrlListener implements EventSubscriberInterface
             return;
         }
 
+        $page = $request->get('page');
+        if (!empty($page) && (int)$page > 1) {
+            return;
+        }
+
         if ($event->getUrl() !== null) {
             return;
         }
