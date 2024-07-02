@@ -86,6 +86,16 @@ class CanonicalUrlListener implements EventSubscriberInterface
             $canonicalUrl .= $path;
 
             $canonicalUrl = rtrim($canonicalUrl, '/');
+            $view = $request->get("_view");
+
+            if(in_array($view, ['category', 'folder'])) {
+                if (null === $page = $request->get('page')){
+                    $page = 1;
+                }
+
+                $canonicalUrl .= '?page='.$page;
+            }
+
         } else if (isset($parseUrlByCurrentLocale['query'])) {
             $canonicalUrl .= '/?'. (array_key_exists("query", $parseUrlByCurrentLocale)) ? $parseUrlByCurrentLocale['query'] : "";
         }
