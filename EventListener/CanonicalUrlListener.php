@@ -88,10 +88,7 @@ class CanonicalUrlListener implements EventSubscriberInterface
             $canonicalUrl = rtrim($canonicalUrl, '/');
             $view = $request->get("_view");
 
-            if(in_array($view, ['category', 'folder'])) {
-                if (null === $page = $request->get('page')){
-                    $page = 1;
-                }
+            if((null !== $page = $request->get('page')) && in_array($view, ['category', 'folder'])) {
 
                 $canonicalUrl .= '?page='.$page;
             }
